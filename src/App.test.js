@@ -1,14 +1,42 @@
 import React from 'react';
-import * as ReactDOM from 'react-dom';
+import {render, fireEvent} from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import App from './App';
 
 test('ToDo', () => {
-  const root = document.createElement('div');
-  ReactDOM.render(<App />, root);
+  const {getByText, getByLabelText} = render(<App />);
 
   // after rendering our component
-  // use DOM APIs (query selector) to make assertions
-  expect(root.querySelector('h1').textContent).toBe('TODO');
-  expect(root.querySelector('label').textContent).toBe('Add todo: ');
-  expect(root.querySelector('button').textContent).toBe('Add #1');
+  getByText('TODO')
+  getByLabelText('Add todo:')
+  getByText('Add #1')
+});
+
+test('add items to list', () => {
+  const {getByText, getByLabelText} = render(<App />);
+
+  // after rendering our component
+  getByText('TODO')
+  const input = getByLabelText('Add todo:')
+  fireEvent.change(input, {target:{value: 'wash car'}});
+  fireEvent.click(getByText('Add #1'));
+
+  //confirm data
+  getByText('Add #2');
+  getByText('wash car');
+});
+
+// userEvent expresses intent better
+test("user-events allows users to add...", () => {
+  const {getByText, getByLabelText} = render(<App />);
+
+  const input = getByLabelText('Add todo:');
+  const button = getByText('Add #1');
+
+  userEvent.type(input, "Learn spanish");
+  userEvent.click(button);
+
+    //confirm data
+    getByText('Learn spanish');
+    getByText('Add #2');
 });
